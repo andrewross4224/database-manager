@@ -1,17 +1,23 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 
-// need to fix bypassing prompt
+// need to add database or will throw err
+const db = mysql.createConnection(
+    {
+        host: 'localhost',
+        user: 'root',
+        password: 'Alien6060!',
+        database: 'employee_directory'
+    },
+);
 
-// const db = mysql.createConnection(
-//     {
-//         host: 'localhost',
-//         user: 'root',
-//         password: 'Alien6060!',
-//         database: 'employee_directory'
-//     },
-//     console.log(`Connected to the employee_directory database.`)
-// );
+db.connect((err) => {
+    if(err){
+    console.log(err)
+    } else {
+        console.log('Connected to employee database')
+    }
+});
 
 prompt1 = () => {
     inquirer.prompt([
