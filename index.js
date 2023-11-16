@@ -1,13 +1,14 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+require('dotenv').config();
 
 // need to add database or will throw err
 init = () => {
     const db = mysql.createConnection(
         {
             host: 'localhost',
-            user: 'root',
-            password: 'Alien6060!',
+            user: process.env.DB_USER,
+            password: process.env.DB_PASS,
             database: 'employee_directory'
         },
     );
