@@ -93,7 +93,7 @@ const viewDepartments = () => {
 }
 // Function for viewing roles
 const viewRoles = () => {
-    db.query('SELECT ID, NAME AS Department FROM role', (err, data) => {
+    db.query('SELECT roles.ID, Title, department.NAME AS Department, Salary FROM roles JOIN department ON roles.department = department.id;', (err, data) => {
         if (err) {
             console.log(err);
         }
