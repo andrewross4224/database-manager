@@ -38,14 +38,14 @@ const init = () => {
 }
 // initial input from user
 const prompt1 = async () => {
-    const input = await inquirer.prompt([
+    let input = await inquirer.prompt([
         {
             type: 'list',
             message: 'What would you like to do?',
             name: 'userChoice',
             choices: [...DB_Options]
         },
-    ])
+    ]);
     switch (input.userChoice) {
         // View all departments
         case DB_Options[0]:
@@ -82,6 +82,7 @@ const viewDepartments = () => {
     db.query('SELECT ID, NAME AS Department FROM department', (err, data) => {
         if (err) {
             console.log(err);
+            return;
         }
         // making new line in console for format
         console.log('')
@@ -96,6 +97,7 @@ const viewRoles = () => {
     db.query('SELECT role.ID, Title, department.NAME AS Department, Salary FROM role JOIN department ON role.department = department.id ORDER BY role.id;', (err, data) => {
         if (err) {
             console.log(err);
+            return;
         }
         // making new line in console for format
         console.log('')
@@ -110,6 +112,7 @@ const viewEmployees = () => {
     db.query('SELECT employee.ID, First_Name, Last_Name, Title, department.name AS Department, role.Salary FROM employee JOIN role ON employee.role = role.id JOIN department ON role.department = department.id ORDER BY employee.id;', (err, data) => {
         if (err) {
             console.log(err);
+            return;
         }
         // making new line in console for format
         console.log('')
@@ -121,19 +124,34 @@ const viewEmployees = () => {
 }
 // Function for adding department
 const addDepartment = async () => {
-    let output = await"a"
+    let input = await inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the name of the new department?',
+            name: 'department',
+        }
+    ]);
+    let sql = "INSERT INTO department (name) VALUES (?)"
+    db.query(sql, input.department, (err) => {
+        if(err) {
+            console.log(err);
+            return;
+        }
+        console.log('\nDepartment created!\n');
+        prompt1();
+    })
 }
 // Function for adding role
 const addRole = async () => {
-    let output = await"a"
+    let output = await "a"
 }
 // Function for adding employee
 const addEmployee = async () => {
-    let output = await"a"
+    let output = await "a"
 }
 // Function for updating employee role
 const updateEmployeeRole = async () => {
-    let output = await"a"
+    let output = await "a"
 }
 
 init();
