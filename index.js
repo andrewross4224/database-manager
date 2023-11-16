@@ -131,9 +131,9 @@ const addDepartment = async () => {
             name: 'department',
         }
     ]);
-    let sql = "INSERT INTO department (name) VALUES (?)"
+    let sql = 'INSERT INTO department (name) VALUES (?)'
     db.query(sql, input.department, (err) => {
-        if(err) {
+        if (err) {
             console.log(err);
             return;
         }
@@ -142,8 +142,60 @@ const addDepartment = async () => {
     })
 }
 // Function for adding role
-const addRole = async () => {
-    let output = await "a"
+const addRole = () => {
+    db.query('SELECT * FROM department', (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        } else {
+            let departments = [];
+            for (let point in data) {
+                departments.push(data[point].name)
+            }
+            rolePrompt(departments);
+        }
+    })
+    const rolePrompt = async (data) => {
+        let input = await inquirer.prompt([
+            {
+                type: 'input',
+                message: 'What is the name of the new role?',
+                name: 'role'
+            },
+            {
+                type: 'input',
+                message: 'What is the salary for this role?',
+                name: 'salary'
+            },
+            {
+                type: 'list',
+                message: 'What department does this role belong to?',
+                name: 'department',
+                choices: [...data]
+            }
+        ])
+        db.query('SELECT * FROM department WHERE name = (?)', input.department, (err, data) => {
+            if(err) {
+                console.log(err);
+                return;
+            } else {
+                input.department = data[0].id;
+                roleQuery(input);
+            }
+        })
+    }
+    const roleQuery = (input) => {
+        let params = [input.role, input.department, input.salary]
+        let sql = 'INSERT INTO role (title, department, salary) VALUES (?,?,?);'
+        db.query(sql, params, (err) => {
+            if(err) {
+                console.log(err)
+            } else {
+                console.log('\nRole Added!\n')
+                prompt1();
+            }
+        })
+    }
 }
 // Function for adding employee
 const addEmployee = async () => {
