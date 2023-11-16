@@ -93,7 +93,7 @@ const viewDepartments = () => {
 }
 // Function for viewing roles
 const viewRoles = () => {
-    db.query('SELECT roles.ID, Title, department.NAME AS Department, Salary FROM roles JOIN department ON roles.department = department.id;', (err, data) => {
+    db.query('SELECT role.ID, Title, department.NAME AS Department, Salary FROM role JOIN department ON role.department = department.id ORDER BY role.id;', (err, data) => {
         if (err) {
             console.log(err);
         }
@@ -106,8 +106,18 @@ const viewRoles = () => {
     });
 }
 // Function for viewing employees
-const viewEmployees = async () => {
-    let output = await"a"
+const viewEmployees = () => {
+    db.query('SELECT employee.ID, First_Name, Last_Name, Title, department.name AS Department, role.Salary FROM employee JOIN role ON employee.role = role.id JOIN department ON role.department = department.id ORDER BY employee.id;', (err, data) => {
+        if (err) {
+            console.log(err);
+        }
+        // making new line in console for format
+        console.log('')
+        // inserting table
+        console.table(data);
+        // refreshing application
+        prompt1();
+    });
 }
 // Function for adding department
 const addDepartment = async () => {
