@@ -12,7 +12,8 @@ const DB_Options = [
     'Add a department',
     'Add a role',
     'Add an employee',
-    'Update an employee role'
+    'Update an employee role',
+    'View department budget'
 ]
 
 // creating connection to db
@@ -75,6 +76,10 @@ const prompt1 = async () => {
         case DB_Options[6]:
             updateEmployeeRole();
             break;
+        case DB_Options[7]:
+            departmentBudget();
+            break;
+
     }
 }
 // Function for viewing departments
@@ -311,6 +316,44 @@ const updateEmployeeRole = () => {
             } else {
                 console.log('\nEmployee role updated!\n')
                 prompt1();
+            }
+        })
+    }
+}
+// Function for seeing total salaries of department
+const departmentBudget = () => {
+    db.query('SELECT * FROM department', (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        let departments = [];
+        for (let department in data) {
+            departments.push(data[department].name)
+        }
+        departmentPrompt(departments, data);
+    });
+    const departmentPrompt = async (departments, data) => {
+        let input = await inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which departments budget would you like?',
+                name: 'department',
+                choices: [...departments]
+            }
+        ])
+        db.query('SELECT Title, department.name AS department, role.salary FROM employee JOIN role ON employee.role = role.id JOIN department ON role.department = department.id ORDER BY department.id;', (err, data2) => {
+            let total = 0;
+            if(err) {
+                console.log(err)
+                return;
+            } else {
+                for(let group in data2){
+                    if(data2[group].department === input.department) {
+                        total += Number(data2[group].salary);
+                    }
+                }
+                console.log(`The combined salaries of the ${input.department} department is ${total}`)
             }
         })
     }
