@@ -14,7 +14,8 @@
   After this log into mysql and run both the schema.sql and seeds.sql from the db folder</br>
   Then run 'node .\index.js' and follow the app functionality 
   # Usage
-  This app should be used to keep track of your company data such as employees, pay, jobs, and departments
+  This app should be used to keep track of your company data such as employees, pay, jobs, and departments</br>
+  For a walkthrough of functionality see this [video](https://drive.google.com/file/d/19FdVd54em05OYsJcOWk9tNo3B1pVYm-R/view)
   # License
   This project is covered under the MIT License the link for the license can be found below.
 

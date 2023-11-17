@@ -354,6 +354,7 @@ const departmentBudget = () => {
                     }
                 }
                 console.log(`The combined salaries of the ${input.department} department is ${total}`)
+                prompt1();
             }
         })
     }
