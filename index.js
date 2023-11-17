@@ -94,7 +94,7 @@ const viewDepartments = () => {
 }
 // Function for viewing roles
 const viewRoles = () => {
-    db.query('SELECT role.ID, Title, department.NAME AS Department, Salary FROM role JOIN department ON role.department = department.id ORDER BY role.id;', (err, data) => {
+    db.query('SELECT role.ID, Title, department.NAME AS Department, Salary FROM role JOIN department ON role.department = department.id ORDER BY department.id;', (err, data) => {
         if (err) {
             console.log(err);
             return;
@@ -109,7 +109,7 @@ const viewRoles = () => {
 }
 // Function for viewing employees
 const viewEmployees = () => {
-    db.query('SELECT employee.ID, First_Name, Last_Name, Title, department.name AS Department, role.Salary FROM employee JOIN role ON employee.role = role.id JOIN department ON role.department = department.id ORDER BY employee.id;', (err, data) => {
+    db.query('SELECT employee.ID, First_Name, Last_Name, Title, department.name AS Department, role.Salary FROM employee JOIN role ON employee.role = role.id JOIN department ON role.department = department.id ORDER BY department.id;', (err, data) => {
         if (err) {
             console.log(err);
             return;
@@ -175,7 +175,7 @@ const addRole = () => {
             }
         ])
         db.query('SELECT * FROM department WHERE name = (?)', input.department, (err, data) => {
-            if(err) {
+            if (err) {
                 console.log(err);
                 return;
             } else {
@@ -188,7 +188,7 @@ const addRole = () => {
         let params = [input.role, input.department, input.salary]
         let sql = 'INSERT INTO role (title, department, salary) VALUES (?,?,?);'
         db.query(sql, params, (err) => {
-            if(err) {
+            if (err) {
                 console.log(err)
             } else {
                 console.log('\nRole Added!\n')
@@ -198,12 +198,122 @@ const addRole = () => {
     }
 }
 // Function for adding employee
-const addEmployee = async () => {
-    let output = await "a"
+const addEmployee = () => {
+    db.query('SELECT * FROM role ORDER BY department', (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        } else {
+            let roles = [];
+            for (let point in data) {
+                roles.push(data[point].title)
+            }
+            employeePrompt(roles);
+        }
+    })
+    const employeePrompt = async (data) => {
+        let input = await inquirer.prompt([
+            {
+                type: 'input',
+                message: 'What is the employees first name?',
+                name: 'first'
+            },
+            {
+                type: 'input',
+                message: 'What is the employees last name?',
+                name: 'last'
+            },
+            {
+                type: 'list',
+                message: 'What is the employees job title?',
+                name: 'title',
+                choices: [...data]
+            }
+        ])
+        db.query('SELECT * FROM role WHERE title = (?)', input.title, (err, data) => {
+            if (err) {
+                console.log(err);
+                return;
+            } else {
+                input.role = data[0].id;
+                input.department = data[0].department;
+                employeeQuery(input);
+            }
+        })
+    }
+    const employeeQuery = (input) => {
+        let params = [input.first, input.last, input.role, input.department]
+        let sql = 'INSERT INTO employee (first_name, last_name, role, department) VALUES (?,?,?,?);'
+        db.query(sql, params, (err) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('\nEmployee Added!\n')
+                prompt1();
+            }
+        })
+    }
 }
 // Function for updating employee role
-const updateEmployeeRole = async () => {
-    let output = await "a"
+const updateEmployeeRole = () => {
+    let sql = 'SELECT employee.id as empID, employee.first_name, employee.last_name, role.title, role.id FROM employee RIGHT JOIN role ON employee.role = role.id'
+    db.query(sql, (err, data) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.table(data)
+            let list = [];
+            for (let employee in data) {
+                if (data[employee].first_name !== null) {
+                    list.push(`${data[employee].first_name} ${data[employee].last_name}`)
+                }
+            }
+            let list2 = [];
+            for (let job in data) {
+                if (!list2.includes(data[job].title)) {
+                    list2.push(data[job].title)
+                }
+            }
+            updatePrompt(list, list2, data);
+        }
+    })
+    const updatePrompt = async (list, list2, data) => {
+        let input = await inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which employee would you like to update?',
+                name: 'employee',
+                choices: [...list]
+            },
+            {
+                type: 'list',
+                message: 'What is the new role?',
+                name: 'newrole',
+                choices: [...list2]
+            }
+        ])
+        for (let i in data) {
+            if (data[i].title === input.newrole) {
+                input.roleID = data[i].id
+            }
+            if (`${data[i].first_name} ${data[i].last_name}` === input.employee) {
+                input.empID = data[i].empID
+            }
+        }
+        updateQuery(input);
+    }
+    const updateQuery = (input) => {
+        let params = [input.roleID, input.empID]
+        let sql = 'UPDATE employee SET role = (?) WHERE id = (?)'
+        db.query(sql, params, (err) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('\nEmployee role updated!\n')
+                prompt1();
+            }
+        })
+    }
 }
 
 init();
